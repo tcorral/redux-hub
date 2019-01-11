@@ -1,0 +1,41 @@
+{
+  "name": "redux-hub",
+  "version": "1.0.0",
+  "description": "Use this library to create redux state nodes so you can plug-in as many as you want behaving as if they were a single one.",
+  "main": "index.js",
+  "scripts": {
+    "test": "ts-node node_modules/jasmine/bin/jasmine ./src/*spec.ts",
+    "build": "npm test && tsc",
+    "compile": "tsc",
+    "tsc:watch": "tsc --watch",
+    "docs": "typedoc --out docs src",
+    "lint": "tslint -p ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tcorral/redux-hub.git"
+  },
+  "keywords": [
+    "redux",
+    "hub",
+    "node",
+    "state"
+  ],
+  "author": "Tomas Corral Casas",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/tcorral/redux-hub/issues"
+  },
+  "homepage": "https://github.com/tcorral/redux-hub#readme",
+  "dependencies": {
+    "redux": "^4.0.1"
+  },
+  "devDependencies": {
+    "@types/jasmine": "^3.3.5",
+    "jasmine": "^3.3.1",
+    "ts-node": "^7.0.1",
+    "tslint": "^5.12.1",
+    "typedoc": "^0.14.1",
+    "typescript": "^3.2.2"
+  }
+}
