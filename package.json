@@ -1,8 +1,9 @@
 {
   "name": "redux-hub",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Use this library to create redux state nodes so you can plug-in as many as you want behaving as if they were a single one.",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
     "test": "ts-node node_modules/jasmine/bin/jasmine ./src/*spec.ts",
     "build": "npm test && tsc",
