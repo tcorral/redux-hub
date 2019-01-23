@@ -1,4 +1,4 @@
-import { AnyAction, createStore, Middleware, Reducer, Store, Unsubscribe, applyMiddleware } from 'redux';
+import { AnyAction, applyMiddleware, createStore, Middleware, Reducer, Store, Unsubscribe } from 'redux';
 
 export interface IReducers {
     [name: string]: any;
