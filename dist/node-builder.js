@@ -25,14 +25,12 @@ var NodeBuilder = /** @class */ (function () {
                 }
                 return hubModel.create();
             };
-            var set = function (method) {
-                var args = [];
-                for (var _i = 1; _i < arguments.length; _i++) {
-                    args[_i - 1] = arguments[_i];
-                }
-                var _a;
+            var set = function (method, data, hook) {
                 executionTrack[method] = true;
-                (_a = hubModel)[method].apply(_a, args);
+                if (typeof hook === 'function') {
+                    data = hook(data);
+                }
+                hubModel[method](data);
                 return {
                     create: create,
                     set: set,

@@ -39,7 +39,7 @@ describe('redux-hub', function () {
             });
             describe('#set', function () {
                 it('should return the set and create api', function () {
-                    var api = node.set('actions');
+                    var api = node.set('actions', {});
                     expect(api.set).toBeDefined();
                     expect(api.create).toBeDefined();
                 });
@@ -108,6 +108,25 @@ describe('redux-hub', function () {
                     expect(stateNode.dispatchers).toBeDefined();
                     expect(stateNode.getState).toBeDefined();
                 });
+            });
+        });
+    });
+    describe('when hooks are provided', function () {
+        var stateHub;
+        var stateNode;
+        beforeEach(function () {
+            stateHub = new index_1.StateHub();
+            stateNode = stateHub.node('hooks-provided-test')
+                .set('actions', {})
+                .set('reducers', {})
+                .set('state', {}, function (data) {
+                return Object.assign({}, data, { test: 'test' });
+            })
+                .create();
+        });
+        it('should modify the data to be configured', function () {
+            expect(stateNode.getState()).toEqual({
+                test: 'test',
             });
         });
     });

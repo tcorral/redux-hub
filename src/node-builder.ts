@@ -31,10 +31,13 @@ export class NodeBuilder<State, Dispatchers, model, result> {
         };
 
         const set: SetMethod<State, Dispatchers, model, result> =
-            <method extends Exclude<keyof model, keyof result>>(method: method, ...args: any[]):
+            <method extends Exclude<keyof model, keyof result>>(method: method, data: any, hook: (data: any) => any):
                 INodeApiComplete<State, Dispatchers, model, result  & { [x in method]: model[x] }>  => {
                     (executionTrack as any)[method] = true;
-                    (hubModel as any)[method](...args);
+                    if (typeof hook === 'function') {
+                        data = hook(data);
+                    }
+                    (hubModel as any)[method](data);
                     return {
                         create,
                         set,
