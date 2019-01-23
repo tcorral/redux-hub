@@ -1,4 +1,4 @@
-import { AnyAction, createStore, Middleware, Reducer, Store, Unsubscribe } from 'redux';
+import { AnyAction, createStore, Middleware, Reducer, Store, Unsubscribe, applyMiddleware } from 'redux';
 
 export interface IReducers {
     [name: string]: any;
@@ -39,6 +39,9 @@ interface IReducersStore {
     [name: string]: any;
 }
 
+// Activate DEBUG_MODE, changing value to true, to log actions in store.
+const DEBUG_MODE = false;
+
 const loggerMiddleware: Middleware = (mainStore) => (next) => (action) => {
     /* tslint:disable */
     console.group(action.type);
@@ -53,7 +56,7 @@ const loggerMiddleware: Middleware = (mainStore) => (next) => (action) => {
 const reducers: IReducers = {};
 const combines: ICombines = {};
 
-const store: Store<any> = createStore(reducerResolver, {}/*, applyMiddleware(loggerMiddleware)*/);
+const store: Store<any> = createStore(reducerResolver, {}, DEBUG_MODE ? applyMiddleware(loggerMiddleware) : undefined);
 
 const initialStatesStore: IInitialStatesStore = {};
 const dispatchersStore: IDispatchersStore = {};

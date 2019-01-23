@@ -1,7 +1,6 @@
 # ReduxHub
 
-> Redux State Hub.
-> Use this library to create redux state nodes so you can plug-in as many as you want behaving as if they were a single one.
+Use this library to create redux state nodes so you can plug-in as many as you want behaving as if they were a single one.
 
 [![Build Status](https://travis-ci.org/tcorral/redux-hub.svg?branch=master)](https://travis-ci.org/tcorral/redux-hub)
 [![NPM Version](https://badge.fury.io/js/redux-hub.svg)](http://badge.fury.io/js/redux-hub)
