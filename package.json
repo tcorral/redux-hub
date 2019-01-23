@@ -1,6 +1,6 @@
 {
   "name": "redux-hub",
-  "version": "1.0.1",
+  "version": "2.0.0-rc.1",
   "description": "Use this library to create redux state nodes so you can plug-in as many as you want behaving as if they were a single one.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -29,7 +29,8 @@
   },
   "homepage": "https://github.com/tcorral/redux-hub#readme",
   "dependencies": {
-    "redux": "^4.0.1"
+    "redux": "^4.0.1",
+    "uuid": "^3.3.2"
   },
   "devDependencies": {
     "@types/jasmine": "^3.3.5",

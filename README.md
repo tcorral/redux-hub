@@ -1,7 +1,6 @@
 # ReduxHub
 
-> Redux State Hub.
-> Use this library to create redux state nodes so you can plug-in as many as you want behaving as if they were a single one.
+Use this library to create redux state nodes so you can plug-in as many as you want behaving as if they were a single one.
 
 [![Build Status](https://travis-ci.org/tcorral/redux-hub.svg?branch=master)](https://travis-ci.org/tcorral/redux-hub)
 [![NPM Version](https://badge.fury.io/js/redux-hub.svg)](http://badge.fury.io/js/redux-hub)
@@ -18,69 +17,84 @@ $ npm install redux-hub --save
 
 ## Usage
 
-### ReduxHub API
-#### createNode
-This method is the responsible of creating a new node in ReduxHub.
-It's a generic method that can be configured to set the State and the Dispatchers interfaces.
+### ReduxHub
+-------
+### StateHub class api
+ReduxHub provides you with a class to instanciate your hub node.
+> StateHub is a [Generic class](https://www.typescriptlang.org/docs/handbook/generics.html) and can be configured in advance so [TypeScript](https://www.typescriptlang.org) can provide the right information.
 
-#### Node Configuration
-On creating a node we need to provide a configuration so it can execute the reducers on dispatching actions.
+#### Generics
+On creating an instance of StateHub you need to provide the following Generics:
 
-```javascript
-{
-    name: 'nodeName',
-    reducers: {
-        TEST: (state: any, action: AnyAction) => {
-            return {
-                ...state,
-                test: 'test',
-            };
-        }
-    },
-    initialState: {
-        test: 'test'
-    },
-    actionCreators: {
-        test: () => ({
-            type: 'TEST',
-        })
-    }
-}
+1. State - Provide your state interface.
+2. Dispatchers - Provide your dispatchers interface.
+3. HubModel - Provide the Hub model interface.
+4. Result - Empty object where the node builder will store the used methods.
+
+```typescript
+import { StateHub } from 'redux-hub';
+
+const stateHub = new StateHub<State, Dispatchers, Hub, {}>();
+```
+-------
+### StateHub instance api
+Once you have created the instance you will be provided with one method to setting up your hub node.
+
+#### node
+Node method gets only one argument, the scope name for your hub node.
+
+```typescript
+import { StateHub } from 'redux-hub';
+
+const stateHub = new StateHub<State, Dispatchers, Hub, {}>();
+
+const node = stateHub.node('scope-name');
+```
+-------
+### Node builder api
+Once we have set the node the api will provide two methods, one to set configuration and another
+one to create the state node.
+
+#### set
+This method receives two arguments, the first is the name of the property to set up and the second is the object to configure it.
+
+> The name of the properties that can be configured are **actions**, **reducers** and **state**.
+
+**Actions and reducers are mandatory**
+
+**State is optional if the initial state is an empty object**
+
+```typescript
+import { StateHub } from 'redux-hub';
+
+const stateHub = new StateHub<State, Dispatchers, Hub, {}>();
+
+stateHub
+    .node('scope-name')
+    .set('actions', {})
+    .set('reducers', {})
+    .set('state', {});
 ```
 
-#### Create a ReduxHub Node
+#### create
+This method, once you have configured the state node, can be used to get the state node instance.
 
-```javascript
-const node = stateHub.createNode<State, Dispatchers>({
-    name: 'nodeName',
-    reducers: {
-        TEST: (state: any, action: AnyAction) => {
-            return {
-                ...state,
-                test: 'test',
-            };
-        },
-        TEST2: (state: any, action: AnyAction) => {
-            return {
-                ...state,
-                test: 'test2',
-            };
-        },
-    },
-    initialState: {
-        test: 'test'
-    },
-    actionCreators: {
-        test: () => ({
-            type: 'TEST',
-        }),
-        test2: () => ({
-            type: 'TEST2',
-        }),
-    }
-});
+> Creating a node without configuring actions and reducers first will throw an error.
+
+```typescript
+import { StateHub } from 'redux-hub';
+
+const stateHub = new StateHub<State, Dispatchers, Hub, {}>();
+
+const stateNode = stateHub
+                    .node('scope-name')
+                    .set('actions', {})
+                    .set('reducers', {})
+                    .set('state', {}) // In this case this line could be skipped.
+                    .create();
 ```
 
+-------
 ### ReduxHub Node API
 
 #### dispatchers

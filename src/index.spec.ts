@@ -1,38 +1,160 @@
-import {} from 'jasmine';
+import { } from 'jasmine';
 import { AnyAction } from 'redux';
 import {
-    IStateNode,
-    stateHub,
+    Hub, IStateNode,
+} from './hub-model';
+import {
+    StateHub,
 } from './index';
+import { INodeApiComplete } from './node-builder';
 
 describe('redux-hub', () => {
-    describe('public api', () => {
-        it('should return stateHub instance', () => {
-            expect(stateHub).toBeDefined();
-            expect(stateHub.createNode).toBeDefined();
-        });
-    });
-    describe('#createNode', () => {
-        const stateNode: IStateNode<{}, {}> = stateHub.createNode<{}, {}>({
-            actionCreators: {},
-            initialState: {},
-            name: 'test',
-            reducers: [],
-        });
-        it('should return the StateNode public API', () => {
-            expect(stateNode).toBeDefined();
+
+    describe('StateHub', () => {
+        it('should exist StateHub', () => {
+            expect(StateHub).toBeDefined();
         });
     });
 
-    describe('#getState', () => {
-        const stateNode: IStateNode<{ test: string }, {}> = stateHub.createNode<{ test: string }, {}>({
-            actionCreators: {},
-            initialState: {
-                test: 'test',
-            },
-            name: 'getState-test',
-            reducers: [],
+    describe('public api', () => {
+        let stateHub: StateHub<{}, {}, Hub, {}>;
+        beforeEach(() => {
+            stateHub = new StateHub<{}, {}, Hub, {}>();
         });
+
+        describe('#constructor', () => {
+            it('should return an instance', () => {
+                expect(stateHub.node).toBeDefined();
+            });
+        });
+
+        describe('#node', () => {
+            let node: INodeApiComplete<{}, {}, Hub, {}>;
+            beforeEach(() => {
+                node = stateHub.node('test');
+            });
+
+            it('should return set and create api', () => {
+                expect(node.set).toBeDefined();
+                expect(node.create).toBeDefined();
+            });
+
+            describe('#set', () => {
+                it('should return the set and create api', () => {
+                    const api = node.set('actions', {});
+                    expect(api.set).toBeDefined();
+                    expect(api.create).toBeDefined();
+                });
+
+                /**
+                 * This test is commented because it's preventing compiling but it's important
+                 * to test that the TS exclusion on using property names is working.
+                 *
+                 * it('should not allow to set two times the same property', () => {
+                 *     const api = node.set('actions');
+                 *     api.set('actions');
+                 * });
+                 */
+            });
+
+            describe('#create', () => {
+                it(`should throw an error if we have not set actions
+                and reducers before using create method: nothing set`, () => {
+                        expect(() => {
+                            node.create();
+                        }).toThrow();
+                    });
+                it(`should throw an error if we have not set actions
+                and reducers before using create method: setting actions only`, () => {
+                        expect(() => {
+                            node
+                                .set('actions', {})
+                                .create();
+                        }).toThrow();
+                    });
+                it(`should throw an error if we have not set actions
+                and reducers before using create method: setting actions and state only`, () => {
+                        expect(() => {
+                            node
+                                .set('actions', {})
+                                .set('state', {})
+                                .create();
+                        }).toThrow();
+                    });
+                it(`should throw an error if we have not set actions
+                and reducers before using create method: setting reducers only`, () => {
+                        expect(() => {
+                            node
+                                .set('reducers', {})
+                                .create();
+                        }).toThrow();
+                    });
+                it(`should throw an error if we have not set actions
+                and reducers before using create method: setting reducers and state only`, () => {
+                        expect(() => {
+                            node
+                                .set('reducers', {})
+                                .set('state', {})
+                                .create();
+                        }).toThrow();
+                    });
+                it(`should create the state node if we have set actions
+                and reducers before using create method: no initial state`, () => {
+                        const stateNode = node
+                            .set('reducers', {})
+                            .set('actions', {})
+                            .create();
+                        expect(stateNode.createSubscriber).toBeDefined();
+                        expect(stateNode.dispatchers).toBeDefined();
+                        expect(stateNode.getState).toBeDefined();
+                    });
+                it(`should create the state node if we have set actions
+                and reducers before using create method: initial state`, () => {
+                        const stateNode = node
+                            .set('reducers', {})
+                            .set('actions', {})
+                            .set('state', {})
+                            .create();
+                        expect(stateNode.createSubscriber).toBeDefined();
+                        expect(stateNode.dispatchers).toBeDefined();
+                        expect(stateNode.getState).toBeDefined();
+                    });
+            });
+        });
+    });
+
+    describe('when hooks are provided', () => {
+        let stateHub: StateHub<{ test: string }, {}, Hub, {}>;
+        let stateNode: IStateNode<{ test: string }, {}>;
+        beforeEach(() => {
+            stateHub = new StateHub<{ test: string }, {}, Hub, {}>();
+            stateNode = stateHub.node('hooks-provided-test')
+                .set('actions', {})
+                .set('reducers', {})
+                .set('state', {}, (data: any) => {
+                    return (Object as any).assign({}, data, { test: 'test' });
+                })
+                .create();
+        });
+        it('should modify the data to be configured', () => {
+            expect(stateNode.getState()).toEqual({
+                test: 'test',
+            });
+        });
+    });
+
+    describe('state node #getState', () => {
+        let stateHub: StateHub<{ test: string }, {}, Hub, {}>;
+        let stateNode: IStateNode<{ test: string }, {}>;
+        beforeEach(() => {
+            stateHub = new StateHub<{ test: string }, {}, Hub, {}>();
+            stateNode = stateHub.node('getState-test')
+                .set('actions', {})
+                .set('state', { test: 'test' })
+                .set('reducers', {})
+                .create();
+        });
+
         it('should return current state', () => {
             expect(stateNode.getState()).toEqual({
                 test: 'test',
@@ -42,22 +164,24 @@ describe('redux-hub', () => {
 
     describe('#createSubscriber', () => {
         describe('empty config', () => {
+            const stateHub: StateHub<{ test: string }, { test: any, test2: any }, Hub, {}> =
+                new StateHub<{ test: string }, { test: any, test2: any }, Hub, {}>();
             let listener: jasmine.Spy;
             const stateNode: IStateNode<{ test: string }, { test: any, test2: any }> =
-                stateHub.createNode<{ test: string }, { test: any, test2: any }>({
-                    actionCreators: {
+                stateHub
+                    .node('createSubscriber-test-empty-config')
+                    .set('actions', {
                         test: () => ({
                             type: 'TEST',
                         }),
                         test2: () => ({
                             type: 'TEST2',
                         }),
-                    },
-                    initialState: {
+                    })
+                    .set('state', {
                         test: 'test',
-                    },
-                    name: 'createSubscriber-test-empty-config',
-                    reducers: {
+                    })
+                    .set('reducers', {
                         TEST: (state: any, action: AnyAction) => {
                             return {
                                 ...state,
@@ -70,11 +194,13 @@ describe('redux-hub', () => {
                                 test: 'TEST2',
                             };
                         },
-                    },
-                });
+                    })
+                    .create();
+
             beforeEach(() => {
                 listener = jasmine.createSpy('listener');
             });
+
             it('returns a subscriber: executes listener', () => {
                 const subscriber = stateNode.createSubscriber();
                 expect(subscriber).toBeDefined();
@@ -89,21 +215,23 @@ describe('redux-hub', () => {
 
         describe('handler provided', () => {
             let obj: { handler: jasmine.Spy, listener: jasmine.Spy };
+            const stateHub: StateHub<{ test: string }, { test: any, test2: any }, Hub, {}> =
+                new StateHub<{ test: string }, { test: any, test2: any }, Hub, {}>();
             const stateNode: IStateNode<{ test: string }, { test: any, test2: any }> =
-                stateHub.createNode<{ test: string }, { test: any, test2: any }>({
-                    actionCreators: {
+                stateHub
+                    .node('createSubscriber-test-handler-provided')
+                    .set('actions', {
                         test: () => ({
                             type: 'TEST',
                         }),
                         test2: () => ({
                             type: 'TEST2',
                         }),
-                    },
-                    initialState: {
+                    })
+                    .set('state', {
                         test: 'test',
-                    },
-                    name: 'createSubscriber-test-handler-provided',
-                    reducers: {
+                    })
+                    .set('reducers', {
                         TEST: (state: any, action: AnyAction) => {
                             return {
                                 ...state,
@@ -116,8 +244,8 @@ describe('redux-hub', () => {
                                 test: 'test2',
                             };
                         },
-                    },
-                });
+                    })
+                    .create();
             beforeEach(() => {
                 obj = {
                     handler: jasmine.createSpy('handler'),
@@ -156,21 +284,23 @@ describe('redux-hub', () => {
         });
         describe('stateSelector provided', () => {
             let obj: { listener: jasmine.Spy, stateSelector: jasmine.Spy };
+            const stateHub: StateHub<{ test: string }, { test: any, test2: any }, Hub, {}> =
+                new StateHub<{ test: string }, { test: any, test2: any }, Hub, {}>();
             const stateNode: IStateNode<{ test: string }, { test: any, test2: any }> =
-                stateHub.createNode<{ test: string }, { test: any, test2: any }>({
-                    actionCreators: {
+                stateHub
+                    .node('createSubscriber-test-stateselector-provided')
+                    .set('actions', {
                         test: () => ({
                             type: 'TEST',
                         }),
                         test2: () => ({
                             type: 'TEST2',
                         }),
-                    },
-                    initialState: {
+                    })
+                    .set('state', {
                         test: 'test',
-                    },
-                    name: 'createSubscriber-test-stateselector-provided',
-                    reducers: {
+                    })
+                    .set('reducers', {
                         TEST: (state: any, action: AnyAction) => {
                             return {
                                 ...state,
@@ -183,12 +313,13 @@ describe('redux-hub', () => {
                                 test: 'test2',
                             };
                         },
-                    },
-                });
+                    })
+                    .create();
+
             beforeEach(() => {
                 obj = {
                     listener: jasmine.createSpy('listener'),
-                    stateSelector: jasmine.createSpy('stateSelector').and.callFake((state: any) => state.test ),
+                    stateSelector: jasmine.createSpy('stateSelector').and.callFake((state: any) => state.test),
                 };
             });
             it('should execute setSelector: no listener executed', () => {
