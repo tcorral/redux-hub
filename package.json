@@ -29,7 +29,8 @@
   },
   "homepage": "https://github.com/tcorral/redux-hub#readme",
   "dependencies": {
-    "redux": "^4.0.1"
+    "redux": "^4.0.1",
+    "uuid": "^3.3.2"
   },
   "devDependencies": {
     "@types/jasmine": "^3.3.5",
